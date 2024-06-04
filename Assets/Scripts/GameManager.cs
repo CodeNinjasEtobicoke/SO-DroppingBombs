@@ -20,12 +20,18 @@ public class GameManager : MonoBehaviour
     private int score;
 
     private bool smokeCleared = true;
+
+    private int BestScore = 0;
+    public Text BestScoreText;
+    private bool BeatBestScore;
+
     void Awake()
     {
         spawner = GameObject.Find("Spawner").GetComponent<spawner>();
         screenBounds = Camera.main.ScreenToWorldPoint(new Vector3(Screen.width, Screen.height, Camera.main.transform.position.z));
         player = playerPrefab;
         scoreText.enabled = false;
+        BestScoreText.enabled = false;
     }
     // Start is called before the first frame update
     void Start()
@@ -33,6 +39,9 @@ public class GameManager : MonoBehaviour
         spawner.active = false;
         title.SetActive(true);
         splash.SetActive(false);
+
+        BestScore = PlayerPrefs.GetInt("BestScore");
+        BestScoreText.text = "Best Score:" + BestScore.ToString();
     }
 
     // Update is called once per frame
@@ -45,7 +54,6 @@ public class GameManager : MonoBehaviour
                 smokeCleared = false;
                 ResetGame();
             }
-        }
         else
         {
             if (!player)
@@ -53,6 +61,20 @@ public class GameManager : MonoBehaviour
                 OnPlayerKilled();
             }
         }
+            var textColor = "#FFF2FC";
+            if (BeatBestScore)
+            {
+                textColor = "#F00";
+            }
+            BestScoreText.text = "<color=" + textColor + ">Best Score:" + BestScore.ToString() + "</color>";
+
+        }
+        else
+        {
+            BestScoreText.text = "";
+        }
+      
+
         if (Input.anyKeyDown)
         {
             spawner.active = true;
@@ -63,7 +85,11 @@ public class GameManager : MonoBehaviour
 
         foreach (GameObject bombObject in nextBomb)
         {
-            if(bombObject.transform.position.y < (-screenBounds.y) - 12 || !gameStarted)
+            if (!gameStarted)
+            {
+                Destroy(bombObject);
+            }
+            else if (bombObject.transform.position.y < (-screenBounds.y - 12) && gameStarted)
             {
                 ScoreSystem.GetComponent<Score>().AddScore(pointsWorth);
                 Destroy(bombObject);
@@ -77,7 +103,17 @@ public class GameManager : MonoBehaviour
         spawner.active = false;
         gameStarted = false;
 
-        Invoke("SplashScreen", 2f);
+        Invoke("SplashScreen", 1f);
+
+        score = ScoreSystem.GetComponent<Score>().score;
+
+        if (score > BestScore)
+        {
+            BestScore = score;
+            PlayerPrefs.SetInt("BestScore", BestScore);
+            BeatBestScore = true;
+            BestScoreText.text = "Best Score:" + BestScore.ToString();
+        }
     }
 
     void SplashScreen()
@@ -96,5 +132,8 @@ public class GameManager : MonoBehaviour
         scoreText.enabled = true;
         ScoreSystem.GetComponent<Score>().score = 0;
         ScoreSystem.GetComponent<Score>().Start();
+
+        BeatBestScore = false;
+        BestScoreText.enabled = true;
     }
 }

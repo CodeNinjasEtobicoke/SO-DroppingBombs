@@ -10,6 +10,7 @@ public class TriggerExplosion : MonoBehaviour
     private void OnCollisionEnter(Collision collision)
     {
         Instantiate(explosion, transform.position, transform.rotation);
+        Destroy(gameObject);
     }
     // Start is called before the first frame update
     void Start()

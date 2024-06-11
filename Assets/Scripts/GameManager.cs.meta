@@ -3,7 +3,13 @@ guid: 1567c1efcfdde7742a7e97480bf3a6e7
 MonoImporter:
   externalObjects: {}
   serializedVersion: 2
-  defaultReferences: []
+  defaultReferences:
+  - title: {instanceID: 0}
+  - playerPrefab: {instanceID: 0}
+  - splash: {instanceID: 0}
+  - ScoreSystem: {instanceID: 0}
+  - scoreText: {instanceID: 0}
+  - BestScoreText: {instanceID: 0}
   executionOrder: 0
   icon: {instanceID: 0}
   userData: 

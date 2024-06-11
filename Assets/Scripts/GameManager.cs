@@ -18,9 +18,7 @@ public class GameManager : MonoBehaviour
     public Text scoreText;
     public int pointsWorth = 1;
     private int score;
-
     private bool smokeCleared = true;
-
     private int BestScore = 0;
     public Text BestScoreText;
     private bool BeatBestScore;
@@ -30,7 +28,6 @@ public class GameManager : MonoBehaviour
         spawner = GameObject.Find("Spawner").GetComponent<spawner>();
         screenBounds = Camera.main.ScreenToWorldPoint(new Vector3(Screen.width, Screen.height, Camera.main.transform.position.z));
         player = playerPrefab;
-        scoreText.enabled = false;
         BestScoreText.enabled = false;
     }
     // Start is called before the first frame update
@@ -49,18 +46,6 @@ public class GameManager : MonoBehaviour
     {
         if (!gameStarted)
         {
-            if (Input.anyKeyDown && smokeCleared)
-            {
-                smokeCleared = false;
-                ResetGame();
-            }
-        else
-        {
-            if (!player)
-            {
-                OnPlayerKilled();
-            }
-        }
             var textColor = "#FFF2FC";
             if (BeatBestScore)
             {
@@ -68,72 +53,76 @@ public class GameManager : MonoBehaviour
             }
             BestScoreText.text = "<color=" + textColor + ">Best Score:" + BestScore.ToString() + "</color>";
 
-        }
-        else
-        {
-            BestScoreText.text = "";
-        }
-      
 
-        if (Input.anyKeyDown)
+            if (Input.anyKeyDown && smokeCleared)
+            {
+                smokeCleared = false;
+                ResetGame();
+            }
+            else
+            {
+                BestScoreText.text = "";
+                if (!player)
+                {
+                    OnPlayerKilled();
+                }
+
+            }
+
+
+            var nextBomb = GameObject.FindGameObjectsWithTag("Bomb");
+
+            foreach (GameObject bombObject in nextBomb)
+            {
+                if (!gameStarted)
+                {
+                    Destroy(bombObject);
+                }
+                else if (bombObject.transform.position.y < (-screenBounds.y))
+                {
+                    ScoreSystem.GetComponent<Score>().AddScore(pointsWorth);
+                    Destroy(bombObject);
+                }
+            }
+        }
+ }       
+    void ResetGame()
         {
             spawner.active = true;
             title.SetActive(false);
+            splash.SetActive(false);
+            player = Instantiate(playerPrefab, new Vector3(0, 0, 0), playerPrefab.transform.rotation);
+            gameStarted = true;
+
+            scoreText.enabled = true;
+            ScoreSystem.GetComponent<Score>().score = 0;
+            ScoreSystem.GetComponent<Score>().Start();
+
+            BeatBestScore = false;
+            BestScoreText.enabled = true;
         }
 
-        var nextBomb = GameObject.FindGameObjectsWithTag("Bomb");
-
-        foreach (GameObject bombObject in nextBomb)
+        void OnPlayerKilled()
         {
-            if (!gameStarted)
+            spawner.active = false;
+            gameStarted = false;
+
+            Invoke("SplashScreen", 2f);
+
+            score = ScoreSystem.GetComponent<Score>().score;
+
+            if (score > BestScore)
             {
-                Destroy(bombObject);
-            }
-            else if (bombObject.transform.position.y < (-screenBounds.y - 12) && gameStarted)
-            {
-                ScoreSystem.GetComponent<Score>().AddScore(pointsWorth);
-                Destroy(bombObject);
+                BestScore = score;
+                PlayerPrefs.SetInt("BestScore", BestScore);
+                BeatBestScore = true;
+                BestScoreText.text = "Best Score:" + BestScore.ToString();
             }
         }
-    }
-
-
-    void OnPlayerKilled()
-    {
-        spawner.active = false;
-        gameStarted = false;
-
-        Invoke("SplashScreen", 1f);
-
-        score = ScoreSystem.GetComponent<Score>().score;
-
-        if (score > BestScore)
+        void SplashScreen()
         {
-            BestScore = score;
-            PlayerPrefs.SetInt("BestScore", BestScore);
-            BeatBestScore = true;
-            BestScoreText.text = "Best Score:" + BestScore.ToString();
+            smokeCleared = true;
+            splash.SetActive(true);
         }
-    }
-
-    void SplashScreen()
-    {
-        smokeCleared = true;
-        splash.SetActive(true);
-    }
-    void ResetGame()
-    {
-        spawner.active = true;
-        title.SetActive(false);
-        splash.SetActive(false);
-        player = Instantiate(playerPrefab, new Vector3(0, 0, 0), playerPrefab.transform.rotation);
-        gameStarted = true;
-
-        scoreText.enabled = true;
-        ScoreSystem.GetComponent<Score>().score = 0;
-        ScoreSystem.GetComponent<Score>().Start();
-
-        BeatBestScore = false;
-        BestScoreText.enabled = true;
-    }
+    
 }

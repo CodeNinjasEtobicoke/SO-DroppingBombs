@@ -1555,14 +1555,14 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 1567c1efcfdde7742a7e97480bf3a6e7, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  title: {fileID: 1095197676}
   playerPrefab: {fileID: 1293495186871882, guid: 82169fb5eac75114e9dae4d2dd916e6f,
     type: 3}
+  title: {fileID: 1095197676}
   splash: {fileID: 1410733075}
   ScoreSystem: {fileID: 1647426520}
   scoreText: {fileID: 1050124952}
-  pointsWorth: 1
   BestScoreText: {fileID: 1404763595}
+  pointsWorth: 1
 --- !u!4 &1947344261
 Transform:
   m_ObjectHideFlags: 0
